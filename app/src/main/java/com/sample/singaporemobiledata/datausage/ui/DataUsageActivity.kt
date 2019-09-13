@@ -1,7 +1,8 @@
-package com.sample.singaporemobiledata
+package com.sample.singaporemobiledata.datausage.ui
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import com.sample.singaporemobiledata.R
 
 class DataUsageActivity : AppCompatActivity() {
 
