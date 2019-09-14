@@ -1,5 +1,6 @@
 package com.sample.singaporemobiledata.datausage.ui
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -16,13 +17,17 @@ class DataUsageActivity : AppCompatActivity() {
             ViewModelProviders.of(this)[DataUsageViewModel::class.java]
         } ?: throw Exception("Invalid Activity")
         initialData()
+        listenObservers()
 
     }
 
+    private fun listenObservers(){
+        mDataUsageViewModel.mDataUsageData.observe(this, Observer {
+        })
+    }
+
     private fun initialData() {
-
         mDataUsageViewModel.getMobileDataUsage()
-
     }
 
 }
