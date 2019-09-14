@@ -15,6 +15,14 @@ class DataUsageActivity : AppCompatActivity() {
         mDataUsageViewModel = this?.run {
             ViewModelProviders.of(this)[DataUsageViewModel::class.java]
         } ?: throw Exception("Invalid Activity")
+        initialData()
+
+    }
+
+    private fun initialData(){
+
+        mDataUsageViewModel.getMobileDataUsage()
+
     }
 
 }
