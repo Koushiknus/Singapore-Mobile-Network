@@ -5,6 +5,7 @@ import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
 import android.util.Log
 import com.sample.singaporemobiledata.datausage.model.DataUsageModel
+import com.sample.singaporemobiledata.datausage.model.QuarterModel
 import com.sample.singaporemobiledata.datausage.repository.DataUsageRepository
 import retrofit2.Call
 import retrofit2.Callback
@@ -15,6 +16,8 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val mDataUsageRepository = DataUsageRepository(application)
     var mDataUsageData = MutableLiveData<DataUsageModel>()
+    var mConsolidatedQuarterValues = HashMap<String,QuarterModel>()
+    var mQuarterValueMapping = HashMap<String,ArrayList<String>>()
 
     fun getMobileDataUsage() {
 
@@ -36,23 +39,47 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun processQuarterDataValues(data : DataUsageModel){
-
+        var listofQuarterValues = ArrayList<String>()
         for(m in returnAfter2018Records(data)){
-            Log.v("StoredValues",m.quarter)
-        }
-    }
-
-    fun returnAfter2018Records(data : DataUsageModel): ArrayList<DataUsageModel.Records> {
-        val filteredDataSet = ArrayList<DataUsageModel.Records>()
-
-        for (i in data.result.records){
-            i.quarter?.let { quarter ->
-                if(quarter.split("-")[0].toInt() > 2007){
-                    filteredDataSet.add(i)
-                }
+             val year =    m.quarter!!.split("-")[0]
+            if(mQuarterValueMapping.containsKey(year)){
+                listofQuarterValues.add(m.volume_of_mobile_data!!)
+                mQuarterValueMapping.put(year,listofQuarterValues)
+            }else{
+                listofQuarterValues = ArrayList()
+                listofQuarterValues.add(m.volume_of_mobile_data!!)
+                mQuarterValueMapping.put(year,listofQuarterValues)
             }
 
         }
+
+        for(i in mQuarterValueMapping){
+            repeat(i.value.size){
+                Log.v("Valueretrieved",i.key  +" "+i.value[it])
+            }
+        }
+
+    }
+
+    private fun setQuarterModel(){
+
+    }
+
+  private  fun returnAfter2018Records(data : DataUsageModel): ArrayList<DataUsageModel.Records> {
+        val filteredDataSet = ArrayList<DataUsageModel.Records>()
+        try{
+            for (i in data.result.records){
+                i.quarter?.let { quarter ->
+                    if(quarter.split("-")[0].toInt() > 2007){
+                        filteredDataSet.add(i)
+                    }
+                }
+
+            }
+        }catch (e: Exception){
+            e.printStackTrace()
+        }
+
         return filteredDataSet
     }
 
