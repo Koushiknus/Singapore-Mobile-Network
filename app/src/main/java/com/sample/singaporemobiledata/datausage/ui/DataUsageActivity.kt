@@ -19,7 +19,7 @@ class DataUsageActivity : AppCompatActivity() {
 
     }
 
-    private fun initialData(){
+    private fun initialData() {
 
         mDataUsageViewModel.getMobileDataUsage()
 
