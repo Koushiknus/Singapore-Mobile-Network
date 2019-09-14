@@ -4,6 +4,7 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import com.sample.singaporemobiledata.R
 import com.sample.singaporemobiledata.datausage.viewmodel.DataUsageViewModel
 
@@ -22,7 +23,10 @@ class DataUsageActivity : AppCompatActivity() {
     }
 
     private fun listenObservers(){
-        mDataUsageViewModel.mDataUsageData.observe(this, Observer {
+        mDataUsageViewModel.mFinalDataUsageByYear.observe(this, Observer {
+            for(j in it!!){
+                Log.v("Finalretrieved", j.key + " " + j.value.quarterOne + " " + j.value.quarterTwo + " "+j.value.quarterThree +" " +j.value.quarterFour)
+            }
         })
     }
 

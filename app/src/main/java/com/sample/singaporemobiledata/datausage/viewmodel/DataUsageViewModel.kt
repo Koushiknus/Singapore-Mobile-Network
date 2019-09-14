@@ -19,6 +19,8 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
     var mConsolidatedQuarterValues = HashMap<String, QuarterModel>()
     var mQuarterValueMapping = HashMap<String, ArrayList<String>>()
 
+    var mFinalDataUsageByYear = MutableLiveData<Map<String, QuarterModel>>()
+
     fun getMobileDataUsage() {
 
         mDataUsageRepository.loadMobileDataUsageData()
@@ -40,7 +42,7 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun processQuarterDataValues(data: DataUsageModel) {
         var listofQuarterValues = ArrayList<String>()
-        for (m in returnAfter2018Records(data)) {
+        for (m in returnAfter2008Records(data)) {
             val year = m.quarter!!.split("-")[0]
             if (mQuarterValueMapping.containsKey(year)) {
                 listofQuarterValues.add(m.volume_of_mobile_data!!)
@@ -56,12 +58,6 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
         val sortedYear = mQuarterValueMapping.toList().sortedBy { (key, _) -> key }.toMap()
         setQuarterModel(sortedYear)
 
-        for (i in sortedYear) {
-            //val result = mQuarterValueMapping.entries.sortedWith(compareBy())
-            repeat(i.value.size) {
-                Log.v("Valueretrieved", i.key + " " + i.value[it])
-            }
-        }
 
     }
 
@@ -70,6 +66,7 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
 
         for(i in sortedYear){
             var model  = QuarterModel()
+            model.year = i.key
             repeat(i.value.size){
                 when(it){
                     0 ->{
@@ -93,11 +90,9 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
             }
             mConsolidatedQuarterValues.put(i.key,model)
         }
-        val sortedfinalMap = mConsolidatedQuarterValues.toList().sortedBy { (key, _) -> key }.toMap()
+        val sortedFinalMap = mConsolidatedQuarterValues.toList().sortedBy { (key, _) -> key }.toMap()
+        mFinalDataUsageByYear.value = sortedFinalMap
 
-        for(j in sortedfinalMap){
-            Log.v("Finalretrieved", j.key + " " + j.value.quarterOne + " " + j.value.quarterTwo + " "+j.value.quarterThree +" " +j.value.quarterFour)
-        }
 
     }
 
@@ -144,7 +139,7 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
     }
     }
 
-    private fun returnAfter2018Records(data: DataUsageModel): ArrayList<DataUsageModel.Records> {
+    private fun returnAfter2008Records(data: DataUsageModel): ArrayList<DataUsageModel.Records> {
         val filteredDataSet = ArrayList<DataUsageModel.Records>()
         try {
             for (i in data.result.records) {
