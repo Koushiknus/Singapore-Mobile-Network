@@ -52,8 +52,12 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
             }
 
         }
+        mQuarterValueMapping.toSortedMap()
+        val sortedYear = mQuarterValueMapping.toList().sortedBy { (key, _) -> key}.toMap()
 
-        for(i in mQuarterValueMapping){
+
+        for(i in sortedYear){
+            //val result = mQuarterValueMapping.entries.sortedWith(compareBy())
             repeat(i.value.size){
                 Log.v("Valueretrieved",i.key  +" "+i.value[it])
             }
