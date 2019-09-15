@@ -27,7 +27,7 @@ class DataUsageActivity : AppCompatActivity() {
 
     }
 
-    private fun listenObservers(){
+    private fun listenObservers() {
         mDataUsageViewModel.mQuarterModelList.observe(this, Observer {
             progressBar.visibility = View.GONE
             mAdapter.setData(it!!)

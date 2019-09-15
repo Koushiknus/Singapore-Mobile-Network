@@ -16,8 +16,8 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val mDataUsageRepository = DataUsageRepository(application)
     var mDataUsageData = MutableLiveData<DataUsageModel>()
-    var mConsolidatedQuarterValues = HashMap<String, QuarterModel>()
-    var mQuarterValueMapping = HashMap<String, ArrayList<String>>()
+    private var mConsolidatedQuarterValues = HashMap<String, QuarterModel>()
+    private var mQuarterValueMapping = HashMap<String, ArrayList<String>>()
     var mQuarterModelList = MutableLiveData<MutableList<QuarterModel>>()
     fun getMobileDataUsage() {
 
@@ -30,10 +30,10 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
                     call: Call<DataUsageModel>,
                     response: Response<DataUsageModel>
                 ) {
-                    val dataResposne = response.body() as DataUsageModel
-                    mDataUsageData.value = dataResposne
-                    processQuarterDataValues(dataResposne)
-                    Log.v("DataResponse", dataResposne.result.records[0].quarter)
+                    val dataResponse = response.body() as DataUsageModel
+                    mDataUsageData.value = dataResponse
+                    processQuarterDataValues(dataResponse)
+                    Log.v("DataResponse", dataResponse.result.records[0].quarter)
                 }
             })
     }
@@ -44,11 +44,11 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
             val year = m.quarter!!.split("-")[0]
             if (mQuarterValueMapping.containsKey(year)) {
                 listofQuarterValues.add(m.volume_of_mobile_data!!)
-                mQuarterValueMapping.put(year, listofQuarterValues)
+                mQuarterValueMapping[year] = listofQuarterValues
             } else {
                 listofQuarterValues = ArrayList()
                 listofQuarterValues.add(m.volume_of_mobile_data!!)
-                mQuarterValueMapping.put(year, listofQuarterValues)
+                mQuarterValueMapping[year] = listofQuarterValues
             }
 
         }
@@ -60,74 +60,68 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private fun setQuarterModel(sortedYear: Map<String, ArrayList<String>>) {
-        var recentQuarterValue  = 0.0
+        var recentQuarterValue = 0.0
 
-        for(i in sortedYear){
-            var model  = QuarterModel()
+        for (i in sortedYear) {
+            val model = QuarterModel()
             model.year = i.key
-            repeat(i.value.size){
-                when(it){
-                    0 ->{
-                        setModelValues(model,i.value[it],0,recentQuarterValue)
+            repeat(i.value.size) {
+                when (it) {
+                    0 -> {
+                        setModelValues(model, i.value[it], 0, recentQuarterValue)
                         recentQuarterValue = i.value[it].toDouble()
                     }
 
                     1 -> {
-                        setModelValues(model,i.value[it],1,recentQuarterValue)
+                        setModelValues(model, i.value[it], 1, recentQuarterValue)
                         recentQuarterValue = i.value[it].toDouble()
                     }
                     2 -> {
-                        setModelValues(model,i.value[it],2,recentQuarterValue)
+                        setModelValues(model, i.value[it], 2, recentQuarterValue)
                         recentQuarterValue = i.value[it].toDouble()
                     }
                     3 -> {
-                        setModelValues(model,i.value[it],3,recentQuarterValue)
+                        setModelValues(model, i.value[it], 3, recentQuarterValue)
                         recentQuarterValue = i.value[it].toDouble()
                     }
                 }
             }
-            mConsolidatedQuarterValues.put(i.key,model)
+            mConsolidatedQuarterValues[i.key] = model
         }
-        val sortedFinalMap = mConsolidatedQuarterValues.toList().sortedBy { (key, _) -> key }.toMap()
+        val sortedFinalMap =
+            mConsolidatedQuarterValues.toList().sortedBy { (key, _) -> key }.toMap()
         mQuarterModelList.value = sortedFinalMap.values.toMutableList()
 
 
     }
 
-    private fun setModelValues(model : QuarterModel,currentQuarterValue : String, quarterNo : Int,recentQuarterValue : Double): QuarterModel {
+    private fun setModelValues(
+        model: QuarterModel,
+        currentQuarterValue: String,
+        quarterNo: Int,
+        recentQuarterValue: Double
+    ): QuarterModel {
 
-        when(quarterNo){
+        when (quarterNo) {
 
-            0 ->{
-                if(currentQuarterValue.toDouble()<recentQuarterValue){
-                    model.quarterOne.put(currentQuarterValue,false)
-                }else{
-                    model.quarterOne.put(currentQuarterValue,true)
-                }
+            0 -> {
+                model.quarterOne[currentQuarterValue] =
+                    currentQuarterValue.toDouble() >= recentQuarterValue
             }
 
-            1 ->{
-                if(currentQuarterValue.toDouble()<recentQuarterValue){
-                    model.quarterTwo.put(currentQuarterValue,false)
-                }else{
-                    model.quarterTwo.put(currentQuarterValue,true)
-                }
+            1 -> {
+                model.quarterTwo[currentQuarterValue] =
+                    currentQuarterValue.toDouble() >= recentQuarterValue
             }
 
-            2 ->{
-                if(currentQuarterValue.toDouble()<recentQuarterValue){
-                    model.quarterThree.put(currentQuarterValue,false)
-                }else{
-                    model.quarterThree.put(currentQuarterValue,true)
-                }
+            2 -> {
+                model.quarterThree[currentQuarterValue] =
+                    currentQuarterValue.toDouble() >= recentQuarterValue
             }
 
-            3 ->{
-                if(currentQuarterValue.toDouble()<recentQuarterValue){
-                    model.quarterFour.put(currentQuarterValue,false)
-                }else{
-                    model.quarterFour.put(currentQuarterValue,true)
-                }
+            3 -> {
+                model.quarterFour[currentQuarterValue] =
+                    currentQuarterValue.toDouble() >= recentQuarterValue
             }
 
 
@@ -135,23 +129,23 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
         return model
 
     }
-    }
+}
 
-    private fun returnAfter2008Records(data: DataUsageModel): ArrayList<DataUsageModel.Records> {
-        val filteredDataSet = ArrayList<DataUsageModel.Records>()
-        try {
-            for (i in data.result.records) {
-                i.quarter?.let { quarter ->
-                    if (quarter.split("-")[0].toInt() > 2007) {
-                        filteredDataSet.add(i)
-                    }
+private fun returnAfter2008Records(data: DataUsageModel): ArrayList<DataUsageModel.Records> {
+    val filteredDataSet = ArrayList<DataUsageModel.Records>()
+    try {
+        for (i in data.result.records) {
+            i.quarter?.let { quarter ->
+                if (quarter.split("-")[0].run { toInt() } > 2007) {
+                    filteredDataSet.add(i)
                 }
-
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
 
-        return filteredDataSet
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
+
+    return filteredDataSet
+}
 
