@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
+import android.view.View
 import com.sample.singaporemobiledata.R
 import com.sample.singaporemobiledata.datausage.adapter.DataUsageListAdapter
 import com.sample.singaporemobiledata.datausage.viewmodel.DataUsageViewModel
@@ -32,6 +33,7 @@ class DataUsageActivity : AppCompatActivity() {
             }
 
             mDataUsageViewModel.mListofQuarterModel.observe(this, Observer {
+                progressBar.visibility = View.GONE
                 val adapter = DataUsageListAdapter(this)
                 adapter.setData(it!!)
                 val mLayoutManager = LinearLayoutManager(this)
@@ -47,6 +49,7 @@ class DataUsageActivity : AppCompatActivity() {
 
     private fun initialData() {
         // Api Call to get the data from Server
+        progressBar.visibility = View.VISIBLE
         mDataUsageViewModel.getMobileDataUsage()
     }
 
