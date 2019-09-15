@@ -14,6 +14,7 @@ class DataUsageViewModelTest {
 
     private lateinit var mDataUsageViewModel: DataUsageViewModel
 
+    // Executes each task synchronously using Architecture Components.
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
@@ -27,7 +28,6 @@ class DataUsageViewModelTest {
         val data = DataUsageModel("", null)
         val result = mDataUsageViewModel.processQuarterDataValues(data)
         assertSame(result, false)
-
         val resultSuccess = mDataUsageViewModel.processQuarterDataValues(getDataUsageModel())
         assertSame(true, resultSuccess)
     }
@@ -37,7 +37,7 @@ class DataUsageViewModelTest {
         val result = mDataUsageViewModel.setQuarterModel(null)
         assertSame(result, false)
         val successResult = mDataUsageViewModel.setQuarterModel(getQuarterTestArray())
-        assertSame(true,successResult)
+        assertSame(true, successResult)
     }
 
     @Test
@@ -57,9 +57,9 @@ class DataUsageViewModelTest {
     }
 
     private fun getQuarterModel(): QuarterModel {
-        var quarterModel = QuarterModel()
-        var testHashMap = HashMap<String?, Boolean>()
-        testHashMap.put("1234", true)
+        val quarterModel = QuarterModel()
+        val testHashMap = HashMap<String?, Boolean>()
+        testHashMap["1234"] = true
         quarterModel.year = "2009"
         quarterModel.quarterOne = testHashMap
         return quarterModel
@@ -73,9 +73,8 @@ class DataUsageViewModelTest {
         testQuarters.add("1005")
         testQuarters.add("1005")
         testQuarters.add("1009")
-        test.put("2008",testQuarters)
-
-       return  test.toList().sortedBy { (key, _) -> key }.toMap()
+        test["2008"] = testQuarters
+        return test.toList().sortedBy { (key, _) -> key }.toMap()
     }
 
     private fun getDataUsageModel(): DataUsageModel {
@@ -100,6 +99,7 @@ class DataUsageViewModelTest {
         record2.quarter = "2015-Q4"
         record2.volume_of_mobile_data = "11.687363"
         record2._id = 5
+
         val recordsList = ArrayList<DataUsageModel.Records>()
         recordsList.add(record1)
         recordsList.add(record2)
@@ -107,8 +107,7 @@ class DataUsageViewModelTest {
         recordsList.add(record4)
 
         result.records = recordsList
-        val dataUsageModel = DataUsageModel("true", result)
-        return dataUsageModel
+        return DataUsageModel("true", result)
     }
 
 }
