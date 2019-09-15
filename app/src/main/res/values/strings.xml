@@ -6,4 +6,6 @@
     <string name="quarterThree">Q3</string>
     <string name="quarterFour">Q4</string>
     <string name="sinagpore_mobile_data_usage">Sinagpore Mobile Data Usage</string>
+    <string name="error_message">Please try again later.Thanks for your patience</string>
+    <string name="invalid_activity">Invalid Activity</string>
 </resources>

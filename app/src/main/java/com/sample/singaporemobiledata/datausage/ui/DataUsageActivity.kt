@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
+import android.widget.Toast
 import com.sample.singaporemobiledata.R
 import com.sample.singaporemobiledata.datausage.adapter.DataUsageListAdapter
 import com.sample.singaporemobiledata.datausage.viewmodel.DataUsageViewModel
@@ -21,19 +22,38 @@ class DataUsageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_data_usage)
         mDataUsageViewModel = this?.run {
             ViewModelProviders.of(this)[DataUsageViewModel::class.java]
-        } ?: throw Exception("Invalid Activity")
+        } ?: throw Exception(getString(R.string.invalid_activity))
         initialData()
         listenObservers()
 
     }
 
     private fun listenObservers() {
+
+        mDataUsageViewModel.mDataUsageData.observe(this, Observer {
+            progressBar.visibility = View.GONE
+            it?.let {
+                // no operations as of now
+            }?:run {
+                showErrorMessage()
+            }
+        })
+
         mDataUsageViewModel.mQuarterModelList.observe(this, Observer {
             progressBar.visibility = View.GONE
-            mAdapter.setData(it!!)
-            recycleview_data_list.adapter = mAdapter
-            mAdapter.notifyDataSetChanged()
+            it?.let {
+                mAdapter.setData(it)
+                recycleview_data_list.adapter = mAdapter
+                mAdapter.notifyDataSetChanged()
+            } ?: run {
+                showErrorMessage()
+            }
+
         })
+    }
+
+    private fun showErrorMessage(){
+        Toast.makeText(this,getString(R.string.error_message),Toast.LENGTH_LONG).show()
     }
 
     private fun initialData() {

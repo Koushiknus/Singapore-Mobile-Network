@@ -3,7 +3,6 @@ package com.sample.singaporemobiledata.datausage.viewmodel
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
-import android.util.Log
 import com.sample.singaporemobiledata.datausage.model.DataUsageModel
 import com.sample.singaporemobiledata.datausage.model.QuarterModel
 import com.sample.singaporemobiledata.datausage.repository.DataUsageRepository
@@ -24,38 +23,49 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
         mDataUsageRepository.loadMobileDataUsageData()
             .enqueue(object : Callback<DataUsageModel> {
                 override fun onFailure(call: Call<DataUsageModel>, t: Throwable) {
+                    mDataUsageData.value = null
                 }
 
                 override fun onResponse(
                     call: Call<DataUsageModel>,
                     response: Response<DataUsageModel>
                 ) {
-                    val dataResponse = response.body() as DataUsageModel
+                    val dataResponse = response.body() as DataUsageModel?
                     mDataUsageData.value = dataResponse
-                    processQuarterDataValues(dataResponse)
-                    Log.v("DataResponse", dataResponse.result.records[0].quarter)
+                    dataResponse?.let {
+                        processQuarterDataValues(dataResponse)
+                    } ?: run {
+                        mDataUsageData.value = null
+
+                    }
+
                 }
             })
     }
 
     fun processQuarterDataValues(data: DataUsageModel) {
-        var listofQuarterValues = ArrayList<String>()
+        var quarterValuelist = ArrayList<String>()
         for (m in returnAfter2008Records(data)) {
-            val year = m.quarter!!.split("-")[0]
-            if (mQuarterValueMapping.containsKey(year)) {
-                listofQuarterValues.add(m.volume_of_mobile_data!!)
-                mQuarterValueMapping[year] = listofQuarterValues
-            } else {
-                listofQuarterValues = ArrayList()
-                listofQuarterValues.add(m.volume_of_mobile_data!!)
-                mQuarterValueMapping[year] = listofQuarterValues
+            m.quarter?.let { quarter->
+                val year = quarter.split("-")[0]
+                if (mQuarterValueMapping.containsKey(year)) {
+                    m.volume_of_mobile_data?.let {
+                        quarterValuelist.add(it)
+                    }
+                    mQuarterValueMapping[year] = quarterValuelist
+                } else {
+                    quarterValuelist = ArrayList()
+                    m.volume_of_mobile_data?.let {
+                        quarterValuelist.add(it)
+                    }
+                    mQuarterValueMapping[year] = quarterValuelist
+                }
             }
 
         }
         mQuarterValueMapping.toSortedMap()
         val sortedYear = mQuarterValueMapping.toList().sortedBy { (key, _) -> key }.toMap()
         setQuarterModel(sortedYear)
-
 
     }
 
@@ -136,7 +146,7 @@ private fun returnAfter2008Records(data: DataUsageModel): ArrayList<DataUsageMod
     try {
         for (i in data.result.records) {
             i.quarter?.let { quarter ->
-                if (quarter.split("-")[0].run { toInt() } > 2007) {
+                if (quarter.split("-")[0].run { toInt() } > 2006) {
                     filteredDataSet.add(i)
                 }
             }
