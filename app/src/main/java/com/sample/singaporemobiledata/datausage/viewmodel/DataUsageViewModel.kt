@@ -30,7 +30,7 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
                     call: Call<DataUsageModel>,
                     response: Response<DataUsageModel>
                 ) {
-                    val dataResponse = response.body() as DataUsageModel?
+                    val dataResponse = response.body()
                     mDataUsageData.value = dataResponse
                     dataResponse?.let {
                         processQuarterDataValues(dataResponse)
@@ -43,7 +43,7 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
             })
     }
 
-    fun processQuarterDataValues(data: DataUsageModel) {
+    fun processQuarterDataValues(data: DataUsageModel): Boolean {
         var quarterValuelist = ArrayList<String>()
         for (m in returnAfter2008Records(data)) {
             m.quarter?.let { quarter->
@@ -59,53 +59,64 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
                         quarterValuelist.add(it)
                     }
                     mQuarterValueMapping[year] = quarterValuelist
+
                 }
             }
 
         }
-        mQuarterValueMapping.toSortedMap()
-        val sortedYear = mQuarterValueMapping.toList().sortedBy { (key, _) -> key }.toMap()
-        setQuarterModel(sortedYear)
+        if(mQuarterValueMapping.size>0){
+            mQuarterValueMapping.toSortedMap()
+            val sortedYear = mQuarterValueMapping.toList().sortedBy { (key, _) -> key }.toMap()
+              return setQuarterModel(sortedYear)
+        }
+        return false
+
 
     }
 
-    private fun setQuarterModel(sortedYear: Map<String, ArrayList<String>>) {
+     fun setQuarterModel(sortedYear: Map<String, ArrayList<String>>?): Boolean {
         var recentQuarterValue = 0.0
 
-        for (i in sortedYear) {
-            val model = QuarterModel()
-            model.year = i.key
-            repeat(i.value.size) {
-                when (it) {
-                    0 -> {
-                        setModelValues(model, i.value[it], 0, recentQuarterValue)
-                        recentQuarterValue = i.value[it].toDouble()
-                    }
+        sortedYear?.let {
+            for (i in sortedYear) {
+                val model = QuarterModel()
+                model.year = i.key
+                repeat(i.value.size) {
+                    when (it) {
+                        0 -> {
+                            setModelValues(model, i.value[it], 0, recentQuarterValue)
+                            recentQuarterValue = i.value[it].toDouble()
+                        }
 
-                    1 -> {
-                        setModelValues(model, i.value[it], 1, recentQuarterValue)
-                        recentQuarterValue = i.value[it].toDouble()
-                    }
-                    2 -> {
-                        setModelValues(model, i.value[it], 2, recentQuarterValue)
-                        recentQuarterValue = i.value[it].toDouble()
-                    }
-                    3 -> {
-                        setModelValues(model, i.value[it], 3, recentQuarterValue)
-                        recentQuarterValue = i.value[it].toDouble()
+                        1 -> {
+                            setModelValues(model, i.value[it], 1, recentQuarterValue)
+                            recentQuarterValue = i.value[it].toDouble()
+                        }
+                        2 -> {
+                            setModelValues(model, i.value[it], 2, recentQuarterValue)
+                            recentQuarterValue = i.value[it].toDouble()
+                        }
+                        3 -> {
+                            setModelValues(model, i.value[it], 3, recentQuarterValue)
+                            recentQuarterValue = i.value[it].toDouble()
+                        }
                     }
                 }
+                mConsolidatedQuarterValues[i.key] = model
             }
-            mConsolidatedQuarterValues[i.key] = model
-        }
-        val sortedFinalMap =
-            mConsolidatedQuarterValues.toList().sortedBy { (key, _) -> key }.toMap()
-        mQuarterModelList.value = sortedFinalMap.values.toMutableList()
+            val sortedFinalMap =
+                mConsolidatedQuarterValues.toList().sortedBy { (key, _) -> key }.toMap()
+            val quarterModels = sortedFinalMap.values.toMutableList()
+            mQuarterModelList.value = quarterModels
 
+            return quarterModels.size>0
+        } ?: run {
+            return false
+        }
 
     }
 
-    private fun setModelValues(
+     fun setModelValues(
         model: QuarterModel,
         currentQuarterValue: String,
         quarterNo: Int,
@@ -139,23 +150,33 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
         return model
 
     }
-}
+    fun returnAfter2008Records(data: DataUsageModel?): ArrayList<DataUsageModel.Records> {
+        val filteredDataSet = ArrayList<DataUsageModel.Records>()
+        try {
+            data?.result?.let {result ->
+                for (i in result.records) {
+                    i.quarter?.let { quarter ->
+                        if (quarter.split("-")[0].run { toInt() } > 2006) {
+                            filteredDataSet.add(i)
+                        }
+                    }
 
-private fun returnAfter2008Records(data: DataUsageModel): ArrayList<DataUsageModel.Records> {
-    val filteredDataSet = ArrayList<DataUsageModel.Records>()
-    try {
-        for (i in data.result.records) {
-            i.quarter?.let { quarter ->
-                if (quarter.split("-")[0].run { toInt() } > 2006) {
-                    filteredDataSet.add(i)
                 }
+            }?: run {
+                return filteredDataSet
             }
 
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return filteredDataSet
 
-    return filteredDataSet
+        }
+
+        return filteredDataSet
+    }
 }
+
+
+
+
 
