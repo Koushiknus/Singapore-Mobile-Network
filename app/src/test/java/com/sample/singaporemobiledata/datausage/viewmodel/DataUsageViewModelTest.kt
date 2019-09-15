@@ -36,6 +36,8 @@ class DataUsageViewModelTest {
     fun setQuarterModel() {
         val result = mDataUsageViewModel.setQuarterModel(null)
         assertSame(result, false)
+        val successResult = mDataUsageViewModel.setQuarterModel(getQuarterTestArray())
+        assertSame(true,successResult)
     }
 
     @Test
@@ -48,6 +50,10 @@ class DataUsageViewModelTest {
     fun setModelValues() {
         val result = mDataUsageViewModel.setModelValues(getQuarterModel(), "1234", 1, 1235.0)
         assertNotNull(result)
+        val result2 = mDataUsageViewModel.setModelValues(getQuarterModel(), "1156", 2, 1235.0)
+        assertNotNull(result2)
+        val result3 = mDataUsageViewModel.setModelValues(getQuarterModel(), "1156", 3, 1235.0)
+        assertNotNull(result3)
     }
 
     private fun getQuarterModel(): QuarterModel {
@@ -58,6 +64,18 @@ class DataUsageViewModelTest {
         quarterModel.quarterOne = testHashMap
         return quarterModel
 
+    }
+
+    private fun getQuarterTestArray(): Map<String, ArrayList<String>> {
+        val test = HashMap<String, ArrayList<String>>()
+        val testQuarters = ArrayList<String>()
+        testQuarters.add("1004")
+        testQuarters.add("1005")
+        testQuarters.add("1005")
+        testQuarters.add("1009")
+        test.put("2008",testQuarters)
+
+       return  test.toList().sortedBy { (key, _) -> key }.toMap()
     }
 
     private fun getDataUsageModel(): DataUsageModel {
