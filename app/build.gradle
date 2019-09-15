@@ -18,6 +18,9 @@ android {
         buildConfigField 'String', 'API_SERVER_URL', '"datastore_search?resource_id=a807b7ab-6cad-4aa6-87d0-e283a7353a0f&limit=59"'
 
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
     buildTypes {
         debug {
             debuggable true
@@ -56,6 +59,7 @@ dependencies {
     // ViewModel and LiveData life cycle
     testImplementation "android.arch.core:core-testing:$lifecyleVersion"
     implementation "com.android.support:design:$supportVersion"
+
 
 
     testImplementation 'junit:junit:4.12'

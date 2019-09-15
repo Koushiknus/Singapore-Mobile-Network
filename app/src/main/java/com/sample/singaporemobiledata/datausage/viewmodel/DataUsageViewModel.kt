@@ -156,9 +156,12 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
             data?.result?.let {result ->
                 for (i in result.records) {
                     i.quarter?.let { quarter ->
-                        if (quarter.split("-")[0].run { toInt() } > 2006) {
-                            filteredDataSet.add(i)
+                        if(quarter.contains("-")){
+                            if (quarter.split("-")[0].run { toInt() } > 2006) {
+                                filteredDataSet.add(i)
+                            }
                         }
+
                     }
 
                 }
