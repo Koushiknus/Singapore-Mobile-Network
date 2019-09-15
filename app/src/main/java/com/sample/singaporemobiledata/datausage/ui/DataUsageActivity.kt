@@ -4,9 +4,12 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import com.sample.singaporemobiledata.R
+import com.sample.singaporemobiledata.datausage.adapter.DataUsageListAdapter
 import com.sample.singaporemobiledata.datausage.viewmodel.DataUsageViewModel
+import kotlinx.android.synthetic.main.activity_data_usage.*
 
 class DataUsageActivity : AppCompatActivity() {
 
@@ -27,10 +30,23 @@ class DataUsageActivity : AppCompatActivity() {
             for(j in it!!){
                 Log.v("Finalretrieved", j.key + " " + j.value.quarterOne + " " + j.value.quarterTwo + " "+j.value.quarterThree +" " +j.value.quarterFour)
             }
+
+            mDataUsageViewModel.mListofQuarterModel.observe(this, Observer {
+                val adapter = DataUsageListAdapter(this)
+                adapter.setData(it!!)
+                val mLayoutManager = LinearLayoutManager(this)
+                recycleview_data_list.setHasFixedSize(true)
+                recycleview_data_list.layoutManager = mLayoutManager
+                recycleview_data_list.adapter = adapter
+                adapter.notifyDataSetChanged()
+            })
+
+
         })
     }
 
     private fun initialData() {
+        // Api Call to get the data from Server
         mDataUsageViewModel.getMobileDataUsage()
     }
 

@@ -20,7 +20,7 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
     var mQuarterValueMapping = HashMap<String, ArrayList<String>>()
 
     var mFinalDataUsageByYear = MutableLiveData<Map<String, QuarterModel>>()
-
+    var mListofQuarterModel = MutableLiveData<MutableList<QuarterModel>>()
     fun getMobileDataUsage() {
 
         mDataUsageRepository.loadMobileDataUsageData()
@@ -91,6 +91,7 @@ class DataUsageViewModel(application: Application) : AndroidViewModel(applicatio
             mConsolidatedQuarterValues.put(i.key,model)
         }
         val sortedFinalMap = mConsolidatedQuarterValues.toList().sortedBy { (key, _) -> key }.toMap()
+        mListofQuarterModel.value = sortedFinalMap.values.toMutableList()
         mFinalDataUsageByYear.value = sortedFinalMap
 
 

@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Singapore Mobile Data</string>
+    <string name="year">Year</string>
+    <string name="quarterOne">Q1</string>
+    <string name="quarterTwo">Q2</string>
+    <string name="quarterThree">Q3</string>
+    <string name="quarterFour">Q4</string>
+    <string name="sinagpore_mobile_data_usage">Sinagpore Mobile Data Usage</string>
 </resources>
