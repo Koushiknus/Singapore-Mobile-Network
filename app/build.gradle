@@ -16,6 +16,7 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.mQuarterValueMapping.runner.AndroidJUnitRunner"
         buildConfigField 'String', 'API_SERVER_URL', '"datastore_search?resource_id=a807b7ab-6cad-4aa6-87d0-e283a7353a0f&limit=59"'
+        buildConfigField 'String', 'BASE_SERVER_URL','"https://data.gov.sg/api/action/"'
 
     }
     testOptions {

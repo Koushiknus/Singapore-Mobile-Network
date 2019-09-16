@@ -18,7 +18,7 @@ class Api {
         private val DEFAULT_CONNECTION_SPECS = Util.immutableList(
             ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT
         )
-        private const val BASE_URL = "https://data.gov.sg/api/action/"
+        private const val BASE_URL = BuildConfig.BASE_SERVER_URL
 
         fun getApiService(): ApiMethods {
 
